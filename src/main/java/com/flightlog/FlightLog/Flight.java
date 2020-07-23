@@ -74,7 +74,6 @@ public class Flight {
     private Date time;
 
     @OneToOne
-    @JoinColumn(name = "id")
     private Pilot pilot;
 
 

@@ -2,16 +2,19 @@ package com.flightlog.FlightLog;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/flights")
 public class FlightController {
 
     private final FlightRepository repository;
+    private final PilotRepository pilotrepository;
 
-    public FlightController(FlightRepository repository){
+
+    public FlightController(FlightRepository repository, PilotRepository pilotRepository){
         this.repository = repository;
+        this.pilotrepository = pilotRepository;
     }
 
     @PostMapping("/add")
@@ -45,16 +48,49 @@ public class FlightController {
     @PatchMapping("/{flightId}/addpilot/{pilotId}")
     public Object addPilot(@PathVariable Long flightId, @PathVariable Long pilotId){
         Optional<Flight> result = this.repository.findById(flightId);
+        Optional<Pilot>  presult = this.pilotrepository.findById(pilotId);
 
-        if(result.isPresent()){
+        if(result.isPresent() && presult.isPresent()){
             Flight flight = result.get();
+            Pilot pilot = presult.get();
 
-//            flight.setPilot_id(pilotId);
+            flight.setPilot(pilot);
 
             return this.repository.save(flight);
         }else{
             return "Flight not found";
         }
+    }
+
+    @PatchMapping("/assign")
+    public List<Flight> assignRandom(){
+        //get all flights without pilot
+        //for (all flights)
+        //get all flights on same date with pilots assigned
+        // get all pilots where id != line 68
+        //pick random index in list from line 69, assign to current flight
+
+        List<Flight> flights = this.repository.findByPilotIsNull();
+
+        for (Flight flight:flights) {
+            System.out.println(flight.getDate());
+            System.out.println(this.repository.findSameDayFlights(flight.getDate()).toString());
+            Collection<Long> busyPilots = this.repository.findSameDayFlights(flight.getDate());
+
+            if(busyPilots.size() == 0){
+                busyPilots.add(0L);
+            }
+            List<Pilot> availPilots = this.pilotrepository.findByIdNotIn(busyPilots);
+            Random r = new Random();
+            System.out.println(availPilots.get(r.nextInt(availPilots.size())).getFirstName());
+
+            flight.setPilot(availPilots.get(r.nextInt(availPilots.size())));
+
+            this.repository.save(flight);
+
+        }
+       return flights;
+
 
 
     }
