@@ -66,4 +66,9 @@ public class PilotController {
         }
     }
 
+    @GetMapping("/{pilotid}/flights")
+    public Iterable<Flight> findPilotsFlights(@PathVariable Long id) {
+        return this.fltrepository.findByPilotId(id);
+    }
+
 }

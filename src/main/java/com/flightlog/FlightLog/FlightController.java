@@ -74,8 +74,8 @@ public class FlightController {
 
         for (Flight flight:flights) {
             System.out.println(flight.getDate());
-            System.out.println(this.repository.findSameDayFlights(flight.getDate()).toString());
-            Collection<Long> busyPilots = this.repository.findSameDayFlights(flight.getDate());
+            System.out.println(this.repository.findFlightsWithPilots(flight.getDate()).toString());
+            Collection<Long> busyPilots = this.repository.findFlightsWithPilots(flight.getDate());
 
             if(busyPilots.size() == 0){
                 busyPilots.add(0L);
@@ -107,5 +107,10 @@ public class FlightController {
             return this.repository.save(current.get());
         }
         return "No flight matches ID";
+    }
+
+    @GetMapping("/date/")
+    public Iterable<Flight> getFlightsOnnDate(@RequestParam String date){
+        return this.repository.findSameDayFlights(date);
     }
 }
