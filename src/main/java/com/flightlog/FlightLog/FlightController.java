@@ -91,7 +91,21 @@ public class FlightController {
         }
        return flights;
 
+    }
 
+    @PatchMapping("/update/{id}")
+    public Object updateFlight(@PathVariable long id, @RequestBody Flight flight){
+        Optional<Flight> current = this.repository.findById(id);
+        if(current.isPresent()){
+            if(flight.getDate() != null){
+                current.get().setDate(flight.getDate());
+            }
+            if(flight.getTime() != null){
+                current.get().setTime(flight.getTime());
+            }
 
+            return this.repository.save(current.get());
+        }
+        return "No flight matches ID";
     }
 }

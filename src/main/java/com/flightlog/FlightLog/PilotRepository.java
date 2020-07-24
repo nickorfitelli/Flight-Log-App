@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface PilotRepository extends CrudRepository<Pilot, Long>  {
     List<Pilot> findByIdNotIn(Collection<Long> ids);
+
 }

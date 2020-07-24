@@ -9,9 +9,11 @@ import java.util.Optional;
 public class PilotController {
 
     private final PilotRepository repository;
+    private final FlightRepository fltrepository;
 
-    public PilotController(PilotRepository repository){
+    public PilotController(PilotRepository repository,FlightRepository fltrepository){
         this.repository = repository;
+        this.fltrepository = fltrepository;
     }
 
     @GetMapping("")
@@ -42,5 +44,26 @@ public class PilotController {
         return "Something went wrong";
     }
 
+    @GetMapping("/{id}/flights")
+    public Iterable<Flight> findYourFlights(@PathVariable Long id){
+        return this.fltrepository.findByPilotId(id);
+    }
+
+    @DeleteMapping("{pilotid}/flight/{flightid}")
+    public Object deletePilotFlight(@PathVariable Long pilotid, @PathVariable Long flightid){
+        Optional<Flight> result = this.fltrepository.findById(flightid);
+        Optional<Pilot>  presult = this.repository.findById(pilotid);
+
+        if(result.isPresent() && presult.isPresent()){
+            Flight flight = result.get();
+            Pilot pilot = presult.get();
+
+            flight.setPilot(null);
+
+            return this.fltrepository.save(flight);
+        }else{
+            return "Flight not found";
+        }
+    }
 
 }
